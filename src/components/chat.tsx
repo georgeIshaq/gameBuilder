@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { chatState } from "@/actions/chat-streaming";
 import { CompressedImage } from "@/lib/image-compression";
 import { useChatSafe } from "./use-chat";
+import { AssetPanel } from "./asset-panel";
 
 export default function Chat(props: {
   appId: string;
@@ -115,6 +116,7 @@ export default function Chat(props: {
           ))}
         </ChatContainer>
       </div>
+      <AssetPanel appId={props.appId} />
       <div className="flex-shrink-0 p-3 transition-all bg-background md:backdrop-blur-sm">
         <PromptInputBasic
           stop={handleStop}

@@ -12,12 +12,13 @@ import { UserButton } from "@stackframe/stack";
 import { UserApps } from "@/components/user-apps";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PromptInputTextareaWithTypingAnimation } from "@/components/prompt-input";
+import { Gamepad2, Sparkles, Zap, Rocket } from "lucide-react";
 
 const queryClient = new QueryClient();
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
-  const [framework, setFramework] = useState("nextjs");
+  const [framework, setFramework] = useState("phaser");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -31,32 +32,62 @@ export default function Home() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <main className="min-h-screen p-4 relative">
-        <div className="flex w-full justify-between items-center">
-          <h1 className="text-lg font-bold flex-1 sm:w-80">
-            AI Game Forge
-          </h1>
-          <Image
-            className="dark:invert mx-2"
-            src={LogoSvg}
-            alt="Adorable Logo"
-            width={36}
-            height={36}
-          />
-          <div className="flex items-center gap-2 flex-1 sm:w-80 justify-end">
+      <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+        </div>
+
+        {/* Header */}
+        <div className="relative z-10 flex w-full justify-between items-center p-6">
+          <div className="flex items-center gap-3">
+            <Gamepad2 className="w-8 h-8 text-purple-400" />
+            <h1 className="text-xl font-bold text-white">
+              AI Game Forge
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
             <UserButton />
           </div>
         </div>
 
-        <div>
-          <div className="w-full max-w-lg px-4 sm:px-0 mx-auto flex flex-col items-center mt-16 sm:mt-24 md:mt-32 col-start-1 col-end-1 row-start-1 row-end-1 z-10">
-            <p className="text-neutral-600 text-center mb-6 text-3xl sm:text-4xl md:text-5xl font-bold">
-              Fun-first AI Game Builder
+        {/* Hero Section */}
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[80vh] px-4">
+          <div className="text-center max-w-4xl mx-auto">
+            {/* Main heading with gradient text */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent leading-tight">
+              Forge Epic Games
+              <br />
+              <span className="text-4xl sm:text-5xl md:text-6xl">with AI Magic</span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-xl sm:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Transform your ideas into playable HTML5 games instantly. No coding required—just describe your vision and watch it come to life.
             </p>
 
-            <div className="w-full relative my-5">
-              <div className="relative w-full max-w-full overflow-hidden">
-                <div className="w-full bg-accent rounded-md relative z-10 border transition-colors">
+            {/* Feature highlights */}
+            <div className="flex flex-wrap justify-center gap-6 mb-12">
+              <div className="flex items-center gap-2 text-purple-300">
+                <Sparkles className="w-5 h-5" />
+                <span>AI-Powered</span>
+              </div>
+              <div className="flex items-center gap-2 text-blue-300">
+                <Zap className="w-5 h-5" />
+                <span>Instant Playable</span>
+              </div>
+              <div className="flex items-center gap-2 text-pink-300">
+                <Rocket className="w-5 h-5" />
+                <span>Phaser Engine</span>
+              </div>
+            </div>
+
+            {/* Game creation input */}
+            <div className="w-full max-w-2xl relative">
+              <div className="relative w-full overflow-hidden">
+                <div className="w-full bg-white/10 backdrop-blur-md rounded-2xl relative z-10 border border-white/20 transition-all duration-300 hover:border-white/30 shadow-2xl">
                   <PromptInput
                     leftSlot={
                       <FrameworkSelector
@@ -68,7 +99,7 @@ export default function Home() {
                     value={prompt}
                     onValueChange={setPrompt}
                     onSubmit={handleSubmit}
-                    className="relative z-10 border-none bg-transparent shadow-none focus-within:border-gray-400 focus-within:ring-1 focus-within:ring-gray-200 transition-all duration-200 ease-in-out "
+                    className="relative z-10 border-none bg-transparent shadow-none focus-within:border-white/40 focus-within:ring-1 focus-within:ring-white/30 transition-all duration-200 ease-in-out text-white placeholder:text-gray-300"
                   >
                     <PromptInputTextareaWithTypingAnimation />
                     <PromptInputActions>
@@ -77,35 +108,26 @@ export default function Home() {
                         size="sm"
                         onClick={handleSubmit}
                         disabled={isLoading || !prompt.trim()}
-                        className="h-7 text-xs"
+                        className="h-8 text-sm bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-none shadow-lg"
                       >
                         <span className="hidden sm:inline">
-                          Forge a Game ⏎
+                          🎮 Forge Game ⏎
                         </span>
-                        <span className="sm:hidden">Forge ⏎</span>
+                        <span className="sm:hidden">🎮 Forge ⏎</span>
                       </Button>
                     </PromptInputActions>
                   </PromptInput>
                 </div>
               </div>
             </div>
+
+            {/* Game examples */}
             <Examples setPrompt={setPrompt} />
-            <div className="mt-8 mb-16">
-              <a
-                href="https://freestyle.sh"
-                className="border rounded-md px-4 py-2 mt-4 text-sm font-semibold transition-colors duration-200 ease-in-out cursor-pointer w-full max-w-72 text-center block"
-              >
-                <span className="block font-bold">
-                  By <span className="underline">freestyle.sh</span>
-                </span>
-                <span className="text-xs">
-                  JavaScript infrastructure for AI.
-                </span>
-              </a>
-            </div>
           </div>
         </div>
-        <div className="border-t py-8 mx-0 sm:-mx-4">
+
+        {/* User Apps Section */}
+        <div className="relative z-10 border-t border-purple-500/20 bg-black/10 backdrop-blur-sm">
           <UserApps />
         </div>
       </main>
@@ -115,27 +137,36 @@ export default function Home() {
 
 function Examples({ setPrompt }: { setPrompt: (text: string) => void }) {
   return (
-    <div className="mt-2">
-      <div className="flex flex-wrap justify-center gap-2 px-2">
+    <div className="mt-8">
+      <p className="text-gray-300 text-center mb-4 text-sm">Try these game ideas:</p>
+      <div className="flex flex-wrap justify-center gap-3 px-2">
         <ExampleButton
-          text="Dog Food Marketplace"
-          promptText="Build a dog food marketplace where users can browse and purchase premium dog food."
+          text="🧛 Vampire Survivors"
+          promptText="Create a vampire survivors style game where I control a character that auto-attacks enemies while dodging hordes of monsters. Add weapon upgrades and experience points."
           onClick={(text) => {
             console.log("Example clicked:", text);
             setPrompt(text);
           }}
         />
         <ExampleButton
-          text="Personal Website"
-          promptText="Create a personal website with portfolio, blog, and contact sections."
+          text="🏃 Endless Runner"
+          promptText="Build an endless runner game where the player jumps over obstacles and collects coins. Make it progressively faster with a score system."
           onClick={(text) => {
             console.log("Example clicked:", text);
             setPrompt(text);
           }}
         />
         <ExampleButton
-          text="Burrito B2B SaaS"
-          promptText="Build a B2B SaaS for burrito shops to manage inventory, orders, and delivery logistics."
+          text="👾 Space Shooter"
+          promptText="Create a space shooter game where I pilot a ship, shoot enemies, and dodge bullets. Add power-ups and boss battles."
+          onClick={(text) => {
+            console.log("Example clicked:", text);
+            setPrompt(text);
+          }}
+        />
+        <ExampleButton
+          text="🎯 Reaction Game"
+          promptText="Make a simple reaction time game where players click targets as fast as possible. Track high scores and add different challenge modes."
           onClick={(text) => {
             console.log("Example clicked:", text);
             setPrompt(text);

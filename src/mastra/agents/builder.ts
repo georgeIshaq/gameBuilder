@@ -4,6 +4,7 @@ import { Agent } from "@mastra/core/agent";
 import { Memory } from "@mastra/memory";
 import { PostgresStore, PgVector } from "@mastra/pg";
 import { todoTool } from "@/tools/todo-tool";
+import { assetTool } from "@/tools/asset-tool";
 
 export const memory = new Memory({
   options: {

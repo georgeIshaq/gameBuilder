@@ -5,6 +5,7 @@ import {
   uuid,
   json,
   pgEnum,
+  integer,
 } from "drizzle-orm/pg-core";
 import { drizzle } from "drizzle-orm/node-postgres";
 
@@ -56,4 +57,36 @@ export const appDeployments = pgTable("app_deployments", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   deploymentId: text("deployment_id").notNull(),
   commit: text("commit").notNull(), // sha of the commit
+});
+
+export const assetTypeEnum = pgEnum("asset_type", [
+  "image",
+  "audio",
+  "video",
+  "sprite",
+  "tilemap",
+  "font",
+  "json",
+  "other",
+]);
+
+export const assetsTable = pgTable("assets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  appId: uuid("app_id")
+    .notNull()
+    .references(() => appsTable.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  type: assetTypeEnum("type").notNull(),
+  filePath: text("file_path").notNull(), // Path in the freestyle filesystem
+  originalFileName: text("original_file_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  fileSize: integer("file_size").notNull(), // Size in bytes
+  width: integer("width"), // For images/videos
+  height: integer("height"), // For images/videos
+  duration: integer("duration"), // For audio/video in seconds
+  tags: json("tags").$type<string[]>().default([]), // AI-friendly tags
+  metadata: json("metadata").$type<Record<string, any>>().default({}), // Additional metadata
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
