@@ -5,6 +5,7 @@ import { Memory } from "@mastra/memory";
 import { PostgresStore, PgVector } from "@mastra/pg";
 import { todoTool } from "@/tools/todo-tool";
 import { assetTool } from "@/tools/asset-tool";
+import { getAssetDataTool } from "@/tools/get-asset-data";
 
 export const memory = new Memory({
   options: {
@@ -30,5 +31,7 @@ export const builderAgent = new Agent({
   memory,
   tools: {
     update_todo_list: todoTool,
+    list_assets: assetTool,
+    get_asset_data: getAssetDataTool,
   },
 });

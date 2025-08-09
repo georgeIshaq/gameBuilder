@@ -2,13 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getApp } from "@/actions/get-app";
 import { getAppIdFromHeaders } from "@/lib/utils";
 import { freestyle } from "@/lib/freestyle";
-import { db, assetsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   try {
     const appId = getAppIdFromHeaders(req);
-    
+
     if (!appId) {
       return NextResponse.json({ error: "Missing App Id header" }, { status: 400 });
     }
@@ -38,28 +36,31 @@ export async function POST(req: NextRequest) {
       repoId: app.info.gitRepo,
     });
 
-    // Create assets directory if it doesn't exist
-    const assetsDir = "/template/public/assets";
-    try {
-      await fs.readdir(assetsDir);
-    } catch {
-      // Directory doesn't exist, create it
-      await fs.mkdir(assetsDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
+    // Generate clean filename using user's chosen asset name
     const fileExtension = file.name.split('.').pop() || '';
     const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
-    const fileName = `${sanitizedName}_${timestamp}.${fileExtension}`;
-    const filePath = `${assetsDir}/${fileName}`;
+    const fileName = `${sanitizedName}.${fileExtension}`;
 
-    // Convert file to buffer and write to filesystem
+    // Save to the Next.js public directory so it's served by the dev server
+    const publicDir = "/template/public";
+    const filePath = `${publicDir}/${fileName}`;
+
+    // Convert to base64 for Freestyle filesystem storage
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    await fs.writeFile(filePath, buffer);
+    const base64Content = Buffer.from(arrayBuffer).toString('base64');
 
-    // Parse tags
+    // Ensure public directory exists
+    try {
+      await fs.ls(publicDir);
+    } catch {
+      // Create public directory if it doesn't exist
+      await fs.writeFile(`${publicDir}/.gitkeep`, '');
+    }
+
+    // Write the file with base64 encoding for binary files
+    await fs.writeFile(filePath, base64Content, 'base64');
+
+    // Parse tags for AI context
     let parsedTags: string[] = [];
     if (tags) {
       try {
@@ -69,51 +70,45 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Get image dimensions if it's an image
-    let width: number | undefined;
-    let height: number | undefined;
-    
-    if (file.type.startsWith('image/')) {
-      // For now, we'll skip dimension detection to keep it simple
-      // In a production app, you'd use a library like sharp or canvas
-    }
-
-    // Save asset metadata to database
-    const [asset] = await db.insert(assetsTable).values({
-      appId,
+    // Create a simple asset manifest file for the AI to reference
+    const assetInfo = {
+      id: crypto.randomUUID(), // Generate unique ID for the asset
       name,
       description,
-      type: type as any,
-      filePath,
+      type,
+      fileName,
       originalFileName: file.name,
       mimeType: file.type,
       fileSize: file.size,
-      width,
-      height,
       tags: parsedTags,
-      metadata: {},
-    }).returning();
+      webPath: `/${fileName}`, // Try direct file path first
+      uploadedAt: new Date().toISOString()
+    };
 
-    // Return the web-accessible path
-    const webPath = `/assets/${fileName}`;
+    // Save asset info to a manifest file the AI can read
+    try {
+      let manifest = [];
+      try {
+        const existingManifest = await fs.readFile('/template/assets-manifest.json');
+        manifest = JSON.parse(existingManifest);
+      } catch {
+        // No existing manifest, start fresh
+      }
+
+      // Remove any existing asset with the same name
+      manifest = manifest.filter((asset: { fileName: string }) => asset.fileName !== fileName);
+
+      // Add new asset
+      manifest.push(assetInfo);
+
+      await fs.writeFile('/template/assets-manifest.json', JSON.stringify(manifest, null, 2));
+    } catch (error) {
+      console.warn("Failed to update assets manifest:", error);
+    }
 
     return NextResponse.json({
       success: true,
-      asset: {
-        id: asset.id,
-        name: asset.name,
-        description: asset.description,
-        type: asset.type,
-        webPath,
-        filePath,
-        originalFileName: asset.originalFileName,
-        mimeType: asset.mimeType,
-        fileSize: asset.fileSize,
-        width: asset.width,
-        height: asset.height,
-        tags: asset.tags,
-        createdAt: asset.createdAt,
-      }
+      asset: assetInfo
     });
 
   } catch (error) {
@@ -128,7 +123,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const appId = getAppIdFromHeaders(req);
-    
+
     if (!appId) {
       return NextResponse.json({ error: "Missing App Id header" }, { status: 400 });
     }
@@ -138,22 +133,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "App not found" }, { status: 404 });
     }
 
-    // Get all assets for this app
-    const assets = await db
-      .select()
-      .from(assetsTable)
-      .where(eq(assetsTable.appId, appId))
-      .orderBy(assetsTable.createdAt);
+    // Get freestyle filesystem
+    const { fs } = await freestyle.requestDevServer({
+      repoId: app.info.gitRepo,
+    });
 
-    // Convert file paths to web paths
-    const assetsWithWebPaths = assets.map(asset => ({
-      ...asset,
-      webPath: asset.filePath.replace('/template/public', ''),
-    }));
+    // Read assets from manifest file
+    let assets = [];
+    try {
+      const manifestContent = await fs.readFile('/template/assets-manifest.json');
+      assets = JSON.parse(manifestContent);
+    } catch {
+      // No manifest file exists yet, return empty array
+      console.log("No assets manifest found, returning empty array");
+    }
 
     return NextResponse.json({
       success: true,
-      assets: assetsWithWebPaths,
+      assets: assets,
     });
 
   } catch (error) {
