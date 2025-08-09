@@ -208,7 +208,9 @@ Available tools:
 Asset usage:
 - Check list_assets first to see what's available
 - Use uploaded assets when possible - they have descriptions explaining their purpose
-- Load in Phaser: this.load.image('key', '/assets/filename.png')
+- To use an asset: call get_asset_data with the asset name to get the data URL
+- Load in Phaser: this.load.image('key', dataUrl) (use the data URL from get_asset_data)
+- **CRITICAL**: Always call get_asset_data to get the actual data URL before using assets
 - For missing assets, create simple colored rectangles or circles as placeholders
 
 ## CRITICAL PHASER TECHNIQUES:
@@ -220,6 +222,32 @@ this.add.graphics()
   .fillStyle(0x00ff00)  // Green color
   .fillRect(0, 0, 32, 32)
   .generateTexture('player', 32, 32);
+\`\`\`
+
+**Loading Uploaded Images (CRITICAL PATTERN):**
+\`\`\`javascript
+// STEP 1: First call get_asset_data tool to get the data URL
+// STEP 2: Then use the data URL in preload():
+
+function preload() {
+  // Add error handling for image loading
+  this.load.on('filecomplete', (key, type, data) => {
+    console.log('Successfully loaded:', key, type);
+  });
+
+  this.load.on('loaderror', (file) => {
+    console.error('Failed to load:', file.key, file.src);
+  });
+
+  // Use the data URL from get_asset_data tool
+  this.load.image('player', 'data:image/png;base64,iVBORw0KGgoAAAA...');
+}
+
+function create() {
+  // Use the loaded texture
+  this.player = this.physics.add.sprite(400, 300, 'player');
+  this.player.setScale(0.5); // Scale if needed
+}
 \`\`\`
 
 **Physics Groups for Bullets/Enemies:**
@@ -251,11 +279,36 @@ this.time.addEvent({
 });
 \`\`\`
 
+**Particle Effects (Phaser 3.60+):**
+\`\`\`javascript
+// CORRECT - Use this.add.particles()
+const particles = this.add.particles(x, y, 'texture', {
+  speed: { min: 100, max: 200 },
+  lifespan: 1000
+});
+
+// WRONG - createEmitter was removed
+// this.add.particles().createEmitter() // DON'T USE
+\`\`\`
+
 Keep it simple:
 - Don't search for complex patterns or external libraries
 - Use basic Phaser 3 features: sprites, physics, input, scenes
 - Make the game playable quickly, then iterate and improve
 - Focus on fun gameplay over fancy graphics
+
+## AVOID DEPRECATED PHASER APIs:
+- **DON'T USE**: createEmitter() - removed in Phaser 3.60+
+- **USE INSTEAD**: this.add.particles(x, y, texture, config) for particle effects
+- **ALWAYS**: Check Phaser 3.80+ documentation for current APIs
+
+## IMAGE LOADING TROUBLESHOOTING:
+If you get "Failed to process file" errors:
+1. Make sure you called get_asset_data tool first to get the data URL
+2. Use the complete data URL from get_asset_data (starts with 'data:image/')
+3. Check the asset key matches between preload() and create()
+4. Add error handling: this.load.on('filecomplete', (key) => console.log('Loaded:', key));
+5. Never use file paths - always use data URLs from get_asset_data
 
 Remember:
 - This is a Phaser 3 + Next.js template - stick to that stack
