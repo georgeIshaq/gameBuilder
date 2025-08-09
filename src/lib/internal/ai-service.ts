@@ -107,9 +107,9 @@ export class AIService {
     const stream = await agent.stream([], {
       threadId: appId,
       resourceId: appId,
-      maxSteps: options?.maxSteps ?? 100,
+      maxSteps: options?.maxSteps ?? 50,  // Reduced from 100 for faster game creation
       maxRetries: options?.maxRetries ?? 0,
-      maxOutputTokens: options?.maxOutputTokens ?? 64000,
+      maxOutputTokens: options?.maxOutputTokens ?? 32000,  // Reduced from 64k for efficiency
       toolsets: {
         ...(process.env.MORPH_API_KEY
           ? {
