@@ -6,7 +6,18 @@
  */
 
 // Agent configuration - customize your AI's behavior
-export { SYSTEM_MESSAGE } from "./system";
+export { SYSTEM_MESSAGE, buildSystemMessage } from "./system";
+
+// Game design templates and patterns
+export * from "./game-design-templates";
+
+// Context-aware agents for specific game types
+export {
+  createGameAgent,
+  gameAgents,
+  getAgentForUserInput,
+  getTemplateSuggestions
+} from "./context-aware-agents";
 
 // Internal services - for advanced usage with custom agents
 export { AIService } from "./internal/ai-service";

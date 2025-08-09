@@ -1,4 +1,85 @@
-export const SYSTEM_MESSAGE = `You are an expert Phaser 3 game developer. Create complete, playable games using Phaser 3 loaded via CDN in a Next.js environment.
+import {
+  SUCCESSFUL_GAME_LOOPS,
+  CORE_GAME_MECHANICS,
+  POPULAR_GAME_TYPES,
+  PHASER_IMPLEMENTATION_PATTERNS,
+  ENGAGEMENT_PATTERNS,
+  QUICK_PROTOTYPING_TIPS
+} from './game-design-templates';
+
+/**
+ * Build a dynamic system message with optional game design templates
+ */
+export function buildSystemMessage(options: {
+  includeGameLoops?: boolean;
+  includeGameTypes?: boolean;
+  includeMechanics?: boolean;
+  includeImplementationPatterns?: boolean;
+  includeEngagementPatterns?: boolean;
+  includePrototypingTips?: boolean;
+  specificGameType?: string;
+  specificGameLoop?: string;
+} = {}) {
+  let systemMessage = BASE_SYSTEM_MESSAGE;
+
+  if (options.includeGameLoops) {
+    systemMessage += '\n\n## PROVEN GAME LOOPS:\n';
+    const loops = options.specificGameLoop
+      ? { [options.specificGameLoop]: SUCCESSFUL_GAME_LOOPS[options.specificGameLoop] }
+      : SUCCESSFUL_GAME_LOOPS;
+
+    Object.entries(loops).forEach(([, loop]) => {
+      systemMessage += `\n**${loop.name}**: ${loop.description}\n`;
+      systemMessage += `Core Actions: ${loop.coreActions.join(', ')}\n`;
+      systemMessage += `Example: ${loop.example}\n`;
+    });
+  }
+
+  if (options.includeGameTypes) {
+    systemMessage += '\n\n## POPULAR GAME TYPES:\n';
+    const types = options.specificGameType
+      ? { [options.specificGameType]: POPULAR_GAME_TYPES[options.specificGameType] }
+      : POPULAR_GAME_TYPES;
+
+    Object.entries(types).forEach(([, type]) => {
+      systemMessage += `\n**${type.name}**: ${type.description}\n`;
+      systemMessage += `Core Loop: ${type.coreLoop}\n`;
+      systemMessage += `Player Goal: ${type.playerGoal}\n`;
+    });
+  }
+
+  if (options.includeMechanics) {
+    systemMessage += '\n\n## CORE MECHANICS TO IMPLEMENT:\n';
+    Object.entries(CORE_GAME_MECHANICS).forEach(([, mechanic]) => {
+      systemMessage += `\n**${mechanic.name}**: ${mechanic.description}\n`;
+    });
+  }
+
+  if (options.includeImplementationPatterns) {
+    systemMessage += '\n\n## PHASER IMPLEMENTATION PATTERNS:\n';
+    Object.entries(PHASER_IMPLEMENTATION_PATTERNS).forEach(([key, pattern]) => {
+      systemMessage += `\n**${key}**:\n\`\`\`javascript${pattern}\`\`\`\n`;
+    });
+  }
+
+  if (options.includeEngagementPatterns) {
+    systemMessage += '\n\n## ENGAGEMENT PATTERNS:\n';
+    Object.entries(ENGAGEMENT_PATTERNS).forEach(([key, pattern]) => {
+      systemMessage += `- **${key}**: ${pattern}\n`;
+    });
+  }
+
+  if (options.includePrototypingTips) {
+    systemMessage += '\n\n## QUICK PROTOTYPING TIPS:\n';
+    Object.entries(QUICK_PROTOTYPING_TIPS).forEach(([key, tip]) => {
+      systemMessage += `- **${key}**: ${tip}\n`;
+    });
+  }
+
+  return systemMessage;
+}
+
+const BASE_SYSTEM_MESSAGE = `You are an expert Phaser 3 game developer. Create complete, playable games using Phaser 3 loaded via CDN in a Next.js environment.
 
 CRITICAL: Always create games at /template/app/page.tsx (the main entry point).
 
@@ -263,3 +344,13 @@ Remember:
 - Build incrementally - get something working first
 - Use "use client" at the top of React components that need browser APIs
 - Keep games simple and fun - don't overcomplicate things`;
+
+// Default system message (backward compatibility)
+export const SYSTEM_MESSAGE = buildSystemMessage({
+  includeGameLoops: false,
+  includeGameTypes: false,
+  includeMechanics: false,
+  includeImplementationPatterns: false,
+  includeEngagementPatterns: false,
+  includePrototypingTips: false
+});
