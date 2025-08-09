@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Adorable",
-  description: "Open Source AI App Builder",
+  title: "AI Game Forge",
+  description: "Fun-first AI Game Builder (powered by Adorable)",
   manifest: "/manifest.json",
   // viewport: {
   //   width: "device-width",
