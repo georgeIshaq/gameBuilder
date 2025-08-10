@@ -125,7 +125,7 @@ export function PromptInputBasic({
                 ? "Compressing images..."
                 : "Type your message here..."
           }
-          className="pr-20 bg-transparent dark:bg-transparent"
+          className="pr-20 bg-transparent dark:bg-transparent text-black dark:text-black placeholder:text-gray-500"
           disabled={disabled}
         />
       </PromptInput>

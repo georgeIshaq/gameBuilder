@@ -12,8 +12,8 @@ import { RefreshCwIcon } from "lucide-react";
 import { ShareButton } from "./share-button";
 
 export default function WebView(props: {
-  repo: string;
-  baseId: string;
+  repo?: string;
+  baseId?: string;
   appId: string;
   domain?: string;
 }) {
@@ -35,25 +35,31 @@ export default function WebView(props: {
         </Button>
         <ShareButton domain={props.domain} appId={props.appId} />
       </div>
-      <FreestyleDevServer
-        ref={devServerRef}
-        actions={{ requestDevServer }}
-        repoId={props.repo}
-        loadingComponent={({ iframeLoading, devCommandRunning }) =>
-          !devCommandRunning && (
-            <div className="flex items-center justify-center h-full">
-              <div>
-                <div className="text-center">
-                  {iframeLoading ? "JavaScript Loading" : "Starting VM"}
-                </div>
+      {props.repo ? (
+        <FreestyleDevServer
+          ref={devServerRef}
+          actions={{ requestDevServer }}
+          repoId={props.repo}
+          loadingComponent={({ iframeLoading, devCommandRunning }) =>
+            !devCommandRunning && (
+              <div className="flex items-center justify-center h-full">
                 <div>
-                  <div className="loader"></div>
+                  <div className="text-center">
+                    {iframeLoading ? "JavaScript Loading" : "Starting VM"}
+                  </div>
+                  <div>
+                    <div className="loader"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        }
-      />
+            )
+          }
+        />
+      ) : (
+        <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+          Preview unavailable
+        </div>
+      )}
     </div>
   );
 }

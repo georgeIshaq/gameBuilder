@@ -2,7 +2,7 @@
 
 import { getApp } from "@/actions/get-app";
 import AppWrapper from "../../../components/app-wrapper";
-import { freestyle } from "@/lib/freestyle";
+
 import { db } from "@/db/schema";
 import { appUsers } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -45,11 +45,18 @@ export default async function AppPage({
     resourceId: id,
   });
 
-  const { codeServerUrl, ephemeralUrl } = await freestyle.requestDevServer({
-    repoId: app?.info.gitRepo,
-  });
-
-  console.log("requested dev server");
+  // Freestyle dev server is optional; skip if unavailable
+  let codeServerUrl: string | undefined;
+  let ephemeralUrl: string | undefined;
+  try {
+    const freestyle = (await import("@/lib/freestyle")).freestyle;
+    const res = await freestyle.requestDevServer({ repoId: app?.info.gitRepo });
+    codeServerUrl = res.codeServerUrl;
+    ephemeralUrl = res.ephemeralUrl;
+    console.log("requested dev server");
+  } catch (e) {
+    console.warn("Dev server unavailable, continuing without preview:", e);
+  }
 
   // Use the previewDomain from the database, or fall back to a generated domain
   const domain = app.info.previewDomain;

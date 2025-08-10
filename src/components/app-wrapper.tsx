@@ -23,14 +23,14 @@ export default function AppWrapper({
   consoleUrl,
 }: {
   appName: string;
-  repo: string;
+  repo?: string;
   appId: string;
   respond?: boolean;
   initialMessages: UIMessage[];
-  repoId: string;
-  baseId: string;
-  codeServerUrl: string;
-  consoleUrl: string;
+  repoId?: string;
+  baseId?: string;
+  codeServerUrl?: string;
+  consoleUrl?: string;
   domain?: string;
   running: boolean;
 }) {
@@ -85,7 +85,7 @@ export default function AppWrapper({
               topBar={
                 <TopBar
                   appName={appName}
-                  repoId={repoId}
+                  repoId={repoId || ""}
                   consoleUrl={consoleUrl}
                   codeServerUrl={codeServerUrl}
                 />

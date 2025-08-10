@@ -26,8 +26,8 @@ export function TopBar({
   appName: string;
   children?: React.ReactNode;
   repoId: string;
-  consoleUrl: string;
-  codeServerUrl: string;
+  consoleUrl?: string;
+  codeServerUrl?: string;
 }) {
   const [modalOpen, setModalOpen] = useState(false);
 
