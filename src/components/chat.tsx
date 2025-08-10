@@ -111,19 +111,9 @@ export default function Chat(props: {
         style={{ overflowAnchor: "auto" }}
       >
         <ChatContainer autoScroll>
-          {messages.map((message: any, index: number) => {
-            // Generate a more stable key that includes content hash to avoid duplicates
-            const contentHash = message.content ?
-              message.content.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '') : '';
-            const fallbackKey = `msg-${index}-${contentHash}-${message.role || 'unknown'}`;
-
-            return (
-              <MessageBody
-                key={message.id || fallbackKey}
-                message={message}
-              />
-            );
-          })}
+          {messages.map((message: any, index: number) => (
+            <MessageBody key={`msg-${index}`} message={message} />
+          ))}
         </ChatContainer>
       </div>
       <AssetPanel appId={props.appId} />

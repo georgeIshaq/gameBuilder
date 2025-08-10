@@ -5,10 +5,11 @@ import { PostgresStore, PgVector } from "@mastra/pg";
 import { buildSystemMessage } from "./system";
 import { templateTool } from "@/tools/template-tool";
 import { todoTool } from "@/tools/todo-tool";
-import { 
-  SUCCESSFUL_GAME_LOOPS, 
+
+import {
+  SUCCESSFUL_GAME_LOOPS,
   POPULAR_GAME_TYPES,
-  CORE_GAME_MECHANICS 
+  CORE_GAME_MECHANICS
 } from "./game-design-templates";
 
 export interface GameAgentConfig {
@@ -55,13 +56,13 @@ export function createGameAgent(config: GameAgentConfig = {}) {
   });
 
   // Add custom instructions if provided
-  const finalInstructions = config.customInstructions 
+  const finalInstructions = config.customInstructions
     ? `${systemMessage}\n\n## ADDITIONAL CONTEXT:\n${config.customInstructions}`
     : systemMessage;
 
   return new Agent({
     name: `GameAgent_${config.gameType || 'Generic'}`,
-    model: anthropic("claude-3-7-sonnet-20250219"),
+    model: anthropic("claude-sonnet-4-20250514"),
     instructions: finalInstructions,
     memory,
     tools: {
@@ -85,7 +86,7 @@ export const gameAgents = {
   }),
 
   platformer: () => createGameAgent({
-    gameType: "platformer", 
+    gameType: "platformer",
     gameLoop: "jumpAndRun",
     focusMechanics: ["movement", "collision", "powerUps"],
     includeImplementationPatterns: true,
@@ -134,32 +135,32 @@ export const gameAgents = {
  */
 export function getAgentForUserInput(userInput: string): Agent {
   const input = userInput.toLowerCase();
-  
+
   // Analyze user input to determine best agent
   if (input.includes("space") || input.includes("shoot") || input.includes("alien") || input.includes("invader")) {
     return gameAgents.spaceShooter();
   }
-  
+
   if (input.includes("jump") || input.includes("platform") || input.includes("mario") || input.includes("sonic")) {
     return gameAgents.platformer();
   }
-  
+
   if (input.includes("puzzle") || input.includes("match") || input.includes("tetris") || input.includes("solve")) {
     return gameAgents.puzzleGame();
   }
-  
+
   if (input.includes("survive") || input.includes("avoid") || input.includes("dodge") || input.includes("snake")) {
     return gameAgents.survivalGame();
   }
-  
+
   if (input.includes("tower") || input.includes("defense") || input.includes("strategy") || input.includes("protect")) {
     return gameAgents.towerDefense();
   }
-  
+
   if (input.includes("run") || input.includes("endless") || input.includes("temple run") || input.includes("subway")) {
     return gameAgents.endlessRunner();
   }
-  
+
   // Default to generic game agent with all templates available
   return createGameAgent({
     includeImplementationPatterns: true,

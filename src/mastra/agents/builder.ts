@@ -4,8 +4,7 @@ import { Agent } from "@mastra/core/agent";
 import { Memory } from "@mastra/memory";
 import { PostgresStore, PgVector } from "@mastra/pg";
 import { todoTool } from "@/tools/todo-tool";
-import { assetTool } from "@/tools/asset-tool";
-import { getAssetDataTool } from "@/tools/get-asset-data";
+import { templateTool } from "@/tools/template-tool";
 
 export const memory = new Memory({
   options: {
@@ -26,12 +25,11 @@ export const memory = new Memory({
 
 export const builderAgent = new Agent({
   name: "BuilderAgent",
-  model: anthropic("claude-3-7-sonnet-20250219"),
+  model: anthropic("claude-sonnet-4-20250514"),
   instructions: SYSTEM_MESSAGE,
   memory,
   tools: {
     update_todo_list: todoTool,
-    list_assets: assetTool,
-    get_asset_data: getAssetDataTool,
+    get_game_templates: templateTool,
   },
 });

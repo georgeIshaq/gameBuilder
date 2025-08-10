@@ -3,6 +3,7 @@ import { freestyle } from "@/lib/freestyle";
 import { getAppIdFromHeaders } from "@/lib/utils";
 import { UIMessage } from "ai";
 import { builderAgent } from "@/mastra/agents/builder";
+import { getAgentForUserInput } from "@/lib";
 
 // "fix" mastra mcp bug
 import { EventEmitter } from "events";
@@ -48,12 +49,23 @@ export async function POST(req: NextRequest) {
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
+  // Decide which agent to use based on the latest user text
+  const last = messages.at(-1);
+  let latestText = "";
+  if (last?.parts && Array.isArray(last.parts)) {
+    latestText = last.parts
+      .filter((p: any) => p?.type === "text" && typeof p.text === "string")
+      .map((p: any) => p.text)
+      .join("\n");
+  }
+  const agent = latestText ? getAgentForUserInput(latestText) : builderAgent;
+
   const { mcpEphemeralUrl, fs } = await freestyle.requestDevServer({
     repoId: app.info.gitRepo,
   });
 
   const resumableStream = await sendMessageWithStreaming(
-    builderAgent,
+    agent,
     appId,
     mcpEphemeralUrl,
     fs,

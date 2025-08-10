@@ -4,7 +4,6 @@ import { Agent } from "@mastra/core/agent";
 import { MessageList } from "@mastra/core/agent";
 import { builderAgent } from "@/mastra/agents/builder";
 import { morphTool } from "@/tools/morph-tool";
-import { assetTool } from "@/tools/asset-tool";
 import { FreestyleDevServerFilesystem } from "freestyle-sandboxes";
 
 export interface AIStreamOptions {
@@ -118,9 +117,6 @@ export class AIService {
               },
             }
           : {}),
-        game_tools: {
-          list_assets: assetTool(fs, appId),
-        },
         ...freestyleToolsets,
       },
       async onChunk() {
